@@ -1,7 +1,14 @@
 <style>
-  *{margin: 0;padding: 0}
-  ul li{
+  * {
+    margin: 0;
+    padding: 0
+  }
+  ul li {
     list-style: none;
+  }
+  .calendar-container{
+    position: relative;
+    overflow: visible;
   }
   .calendar {
     width: 280px;
@@ -12,29 +19,31 @@
     background-color: #fff;
     border-radius: 4px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
+    position: absolute;
+    left: 0;
+    top:100%;
   }
-
   .calendar-header {
     display: flex;
     flex-flow: row;
     flex-wrap: nowrap;
     justify-content: space-between;
   }
-
   .center>span {
     cursor: pointer;
   }
-
   .center>span:hover {
     color: #40a9ff;
   }
-
+  .week-days,
+  .days-menu,
   .month-menu {
     display: flex;
     flex-flow: row;
     flex-wrap: wrap;
     justify-content: space-between;
   }
+  .week-days li,
   .days-menu li,
   .month-menu li {
     width: 33%;
@@ -42,16 +51,18 @@
     justify-content: center;
     align-items: center;
     line-height: 40px;
-    padding: 10px 0;
+    padding: 5px 0;
   }
-  .days-menu li{
+  .week-days li,
+  .days-menu li {
     width: 14.25%;
   }
+  .week-days li span,
   .days-menu li span,
-  .month-menu li span{
+  .month-menu li span {
     display: inline-block;
     margin: 0 auto;
-    color: rgba(0,0,0,.65);
+    color: rgba(0, 0, 0, .65);
     background: 0 0;
     text-align: center;
     height: 24px;
@@ -59,38 +70,61 @@
     padding: 0 8px;
     border-radius: 2px;
     transition: background .3s ease;
+    cursor: pointer;
   }
+  .week-days li span {
+    cursor: default;
+    color: rgba(0, 0, 0, 1);
+    font-weight: bold;
+  }
+  .days-menu li span:hover,
   .month-menu li span:hover {
     background: #e6f7ff;
     cursor: pointer;
   }
-  .days-menu{
-    display: flex;
-    flex-flow: row;
-    flex-wrap: wrap;
+  .calendar-body li span._current {
+    color: rgba(0, 0, 0, 1)
   }
 </style>
-
-<input class="" placeholder="请选择日期" (focus)='_showCalendar()'>
-<div *ngIf="show" class="calendar" [ngStyle]="{'width':width?width:'280px'}">
-  <div class="calendar-header">
-    <div class="left"><</div> <div class="center">
+<div class="calendar-container">
+  <input style="height:100%" class="" [value]="_currentYear+'/'+_currentMonth+'/'+_currentDate+' '
+  +currentTime.getHours()+':'+currentTime.getMinutes()+':'+currentTime.getSeconds()" placeholder="请选择日期" (focus)='_showCalendar()'>
+  <div *ngIf="show" class="calendar" [ngStyle]="{'width':width?width:'250px'}">
+    <div class="calendar-header">
+      <div class="left"><</div> 
+      <div class="center">
         <span (click)='_showYearItems()'>{{_currentYear+'年'}}</span>&nbsp;&nbsp;&nbsp;
         <span (click)='_showMonthItems()'>{{_currentMonth+'月'}}</span>
+      </div>
+      <div class="right">></div>
     </div>
-    <div class="right">></div>
+    <div class="calendar-body">
+      <ul class="week-days" *ngIf='!showMonthMenu'>
+        <li *ngFor="let item of weekDays">
+          <span>{{item}}</span>
+        </li>
+      </ul>
+      <ul class="days-menu" *ngIf='!showMonthMenu'>
+        <li *ngFor="let item of days">
+          <span (click)='_onDatePick(item)' [ngClass]="{'_current':item.month===(_currentMonth-1)}" [ngStyle]="{'background': (item.date===_currentDate&&item.month===(_currentMonth-1))?'#40a9ff':''}">{{item.date}}</span>
+        </li>
+      </ul>
+      <ul class="month-menu" *ngIf='showMonthMenu'>
+        <li *ngFor="let item of months">
+          <span (click)='_setCurrentMonth(item)' [ngStyle]="{'background': item===_currentMonth?'#40a9ff':''}">{{item+'月'}}</span>
+        </li>
+      </ul>
+    </div>
+    <div class="calendar-footer">
+      <button>
+        取消
+      </button>
+      <button>
+        确定
+      </button>
+      <button>
+        重置
+      </button>
+    </div>
   </div>
-  <div class="calendar-body">
-    <ul class="days-menu" *ngIf='!showMonthMenu'>
-      <li *ngFor="let item of days">
-        <span (click)='_onDatePick(item)' [ngStyle]="{'background': (item.date===_currentDate&&item.month===(_currentMonth-1))?'#40a9ff':''}">{{item.date}}</span>
-      </li>
-    </ul>
-    <ul class="month-menu" *ngIf='showMonthMenu'>
-      <li *ngFor="let item of months">
-        <span (click)='_setCurrentMonth(item)' [ngStyle]="{'background': item===_currentMonth?'#40a9ff':''}">{{item+'月'}}</span>
-      </li>
-    </ul>
-  </div>
-  <div class="calendar-footer"></div>
 </div>

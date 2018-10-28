@@ -11,6 +11,7 @@ export class NgDatePickerComponent implements OnInit {
   _currentYear;
   showMonthMenu: boolean;
   showYearsMenu: boolean;
+  weekDays = ['日', '一', '二', '三', '四', '五', '六']
 
   @Input() width: string;
   currentTimeValue: Date;
@@ -43,7 +44,11 @@ export class NgDatePickerComponent implements OnInit {
     this.show = true;
   }
   _onDatePick = (val) => {
-    this.currentTime = new Date(this._currentYear, val.month, val.date);
+    const date = new Date();
+    date.setDate(val.date);
+    date.setMonth(val.month);
+    date.setFullYear(this._currentYear);
+    this.currentTime = date;
   }
   _showYearItems = () => {
     this.showYearsMenu = true;
@@ -59,10 +64,10 @@ export class NgDatePickerComponent implements OnInit {
 
   getCurrentMonthStructure = (time: Date) => {
     this.days = [];
-    const date = new Date(time.getFullYear(), time.getMonth(), 0);
-    const totaldays = date.getDate();
-    const firstday = new Date(time.setDate(21)).getDay();
-    for (let i = 1; i <= totaldays + 1; i++) {
+    const _thisMonth = new Date(time.getFullYear(), time.getMonth() + 1, 0);
+    const totaldays = _thisMonth.getDate();
+    const firstday = new Date(_thisMonth.setDate(1)).getDay();
+    for (let i = 1; i <= totaldays; i++) {
       this.days.push({ date: i, month: time.getMonth() });
     }
     // 前面加上个月后几天
@@ -75,7 +80,7 @@ export class NgDatePickerComponent implements OnInit {
     // 后面加下个月前几天
     const length = this.days.length;
     if (length < 42) {
-      for (let i = 0; i < (42 - length); i++) {
+      for (let i = 1; i <= (42 - length); i++) {
         this.days.push({ date: i, month: time.getMonth() + 1 });
       }
     }
